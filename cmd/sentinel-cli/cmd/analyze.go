@@ -2,10 +2,12 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/chrisclapham/SBOM-Sentinel/internal/analysis"
 	"github.com/chrisclapham/SBOM-Sentinel/internal/ingestion"
 )
 
@@ -67,6 +69,36 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	fmt.Printf("✅ Successfully parsed SBOM: %s\n", sbom.Name)
 	fmt.Printf("📦 Found %d components\n", len(sbom.Components))
 	
+	// Run license analysis
+	ctx := context.Background()
+	licenseAgent := analysis.NewLicenseAgent()
+	
+	if verbose {
+		fmt.Printf("🔍 Running license analysis...\n")
+	}
+	
+	analysisResults, err := licenseAgent.Analyze(ctx, *sbom)
+	if err != nil {
+		return fmt.Errorf("failed to run license analysis: %w", err)
+	}
+	
+	// Display analysis results if any findings were detected
+	if len(analysisResults) > 0 {
+		fmt.Printf("\n🔬 Analysis Results:\n")
+		fmt.Printf("   Found %d license compliance issues:\n\n", len(analysisResults))
+		
+		for i, result := range analysisResults {
+			severityIcon := getSeverityIcon(result.Severity)
+			fmt.Printf("   %d. %s [%s] %s\n", i+1, severityIcon, result.Severity, result.AgentName)
+			fmt.Printf("      %s\n", result.Finding)
+			if i < len(analysisResults)-1 {
+				fmt.Printf("\n")
+			}
+		}
+	} else {
+		fmt.Printf("\n✅ License Analysis: No high-risk copyleft licenses detected\n")
+	}
+	
 	if !summary {
 		fmt.Printf("\n📋 SBOM Details:\n")
 		fmt.Printf("   ID: %s\n", sbom.ID)
@@ -104,4 +136,20 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	}
 	
 	return nil
+}
+
+// getSeverityIcon returns an appropriate emoji icon for the given severity level.
+func getSeverityIcon(severity string) string {
+	switch severity {
+	case "Critical":
+		return "🚨"
+	case "High":
+		return "🔴"
+	case "Medium":
+		return "🟡"
+	case "Low":
+		return "🟢"
+	default:
+		return "⚠️"
+	}
 }
