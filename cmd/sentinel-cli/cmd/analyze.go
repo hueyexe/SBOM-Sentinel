@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/chrisclapham/SBOM-Sentinel/internal/analysis"
+	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
 	"github.com/chrisclapham/SBOM-Sentinel/internal/ingestion"
 )
 
@@ -19,9 +20,12 @@ var analyzeCmd = &cobra.Command{
 
 Currently supports:
 - CycloneDX JSON format
+- License compliance analysis
+- AI-powered dependency health analysis (with --enable-ai-health-check)
+- Proactive vulnerability discovery using RAG (with --enable-proactive-scan)
 
 The command will parse the SBOM file and display information about the
-components found within it.`,
+components found within it, along with any security or compliance findings.`,
 	Args: cobra.ExactArgs(1),
 	RunE: runAnalyze,
 }
@@ -32,6 +36,8 @@ func init() {
 	// Add flags specific to the analyze command
 	analyzeCmd.Flags().StringP("format", "f", "auto", "SBOM format (auto, cyclonedx)")
 	analyzeCmd.Flags().BoolP("summary", "s", false, "Show only summary information")
+	analyzeCmd.Flags().Bool("enable-ai-health-check", false, "Enable AI-powered dependency health analysis (requires Ollama)")
+	analyzeCmd.Flags().Bool("enable-proactive-scan", false, "Enable proactive vulnerability discovery using RAG (requires Ollama)")
 }
 
 // runAnalyze executes the analyze command
@@ -42,6 +48,8 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 	summary, _ := cmd.Flags().GetBool("summary")
 	format, _ := cmd.Flags().GetString("format")
+	enableAIHealthCheck, _ := cmd.Flags().GetBool("enable-ai-health-check")
+	enableProactiveScan, _ := cmd.Flags().GetBool("enable-proactive-scan")
 	
 	if verbose {
 		fmt.Printf("Analyzing SBOM file: %s\n", filePath)
@@ -69,34 +77,76 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	fmt.Printf("✅ Successfully parsed SBOM: %s\n", sbom.Name)
 	fmt.Printf("📦 Found %d components\n", len(sbom.Components))
 	
-	// Run license analysis
+	// Run analysis agents
 	ctx := context.Background()
+	var allAnalysisResults []core.AnalysisResult
+	
+	// Run license analysis
 	licenseAgent := analysis.NewLicenseAgent()
 	
 	if verbose {
 		fmt.Printf("🔍 Running license analysis...\n")
 	}
 	
-	analysisResults, err := licenseAgent.Analyze(ctx, *sbom)
+	licenseResults, err := licenseAgent.Analyze(ctx, *sbom)
 	if err != nil {
 		return fmt.Errorf("failed to run license analysis: %w", err)
 	}
+	allAnalysisResults = append(allAnalysisResults, licenseResults...)
+	
+	// Run AI health check if enabled
+	if enableAIHealthCheck {
+		healthAgent := analysis.NewDependencyHealthAgent()
+		
+		if verbose {
+			fmt.Printf("🤖 Running AI-powered dependency health analysis...\n")
+		}
+		
+		healthResults, err := healthAgent.Analyze(ctx, *sbom)
+		if err != nil {
+			fmt.Printf("Warning: AI health analysis failed: %v\n", err)
+		} else {
+			allAnalysisResults = append(allAnalysisResults, healthResults...)
+		}
+	}
+	
+	// Run proactive vulnerability scan if enabled
+	if enableProactiveScan {
+		proactiveAgent := analysis.NewProactiveVulnerabilityAgent()
+		
+		if verbose {
+			fmt.Printf("🔍 Running proactive vulnerability discovery using RAG...\n")
+		}
+		
+		proactiveResults, err := proactiveAgent.Analyze(ctx, *sbom)
+		if err != nil {
+			fmt.Printf("Warning: Proactive vulnerability scan failed: %v\n", err)
+		} else {
+			allAnalysisResults = append(allAnalysisResults, proactiveResults...)
+		}
+	}
 	
 	// Display analysis results if any findings were detected
-	if len(analysisResults) > 0 {
+	if len(allAnalysisResults) > 0 {
 		fmt.Printf("\n🔬 Analysis Results:\n")
-		fmt.Printf("   Found %d license compliance issues:\n\n", len(analysisResults))
+		fmt.Printf("   Found %d issues:\n\n", len(allAnalysisResults))
 		
-		for i, result := range analysisResults {
+		for i, result := range allAnalysisResults {
 			severityIcon := getSeverityIcon(result.Severity)
 			fmt.Printf("   %d. %s [%s] %s\n", i+1, severityIcon, result.Severity, result.AgentName)
 			fmt.Printf("      %s\n", result.Finding)
-			if i < len(analysisResults)-1 {
+			if i < len(allAnalysisResults)-1 {
 				fmt.Printf("\n")
 			}
 		}
 	} else {
-		fmt.Printf("\n✅ License Analysis: No high-risk copyleft licenses detected\n")
+		fmt.Printf("\n✅ Analysis Complete: No issues detected\n")
+		if !enableAIHealthCheck {
+			fmt.Printf("   💡 Tip: Use --enable-ai-health-check for AI-powered dependency health analysis\n")
+		}
+		if !enableProactiveScan {
+			fmt.Printf("   🔍 Tip: Use --enable-proactive-scan for proactive vulnerability discovery using RAG\n")
+		}
 	}
 	
 	if !summary {
