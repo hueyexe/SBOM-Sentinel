@@ -1,0 +1,89 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "serialNumber": "urn:uuid:12345678-1234-1234-1234-123456789012",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2024-01-01T12:00:00Z",
+    "tools": [
+      {
+        "vendor": "SBOM Sentinel",
+        "name": "Test Generator",
+        "version": "1.0.0"
+      }
+    ],
+    "component": {
+      "type": "application",
+      "name": "Test Application",
+      "version": "1.0.0",
+      "purl": "pkg:github/test/application@1.0.0"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "express",
+      "version": "4.18.2",
+      "purl": "pkg:npm/express@4.18.2",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "copyleft-library",
+      "version": "2.1.0",
+      "purl": "pkg:npm/copyleft-library@2.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "GPL-3.0-only"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "lodash",
+      "version": "4.17.21",
+      "purl": "pkg:npm/lodash@4.17.21",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "react",
+      "version": "18.2.0",
+      "purl": "pkg:npm/react@18.2.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "abandoned-utility",
+      "version": "1.2.3",
+      "purl": "pkg:npm/abandoned-utility@1.2.3",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ]
+    }
+  ]
+}
