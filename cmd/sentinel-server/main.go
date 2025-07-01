@@ -32,7 +32,9 @@ func main() {
 	// Configure routes
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"ok","service":"sbom-sentinel"}`))
+		if _, err := w.Write([]byte(`{"status":"ok","service":"sbom-sentinel"}`)); err != nil {
+			log.Printf("Error writing health check response: %v", err)
+		}
 	})
 	
 	// API v1 routes

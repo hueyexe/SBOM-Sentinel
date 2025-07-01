@@ -98,7 +98,10 @@ func SubmitSBOMHandler(repo storage.Repository) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			// Log the error, but response has already been started
+			fmt.Printf("Error encoding response: %v\n", err)
+		}
 	}
 }
 
@@ -138,7 +141,10 @@ func GetSBOMHandler(repo storage.Repository) http.HandlerFunc {
 
 		// Return the SBOM
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(sbom)
+		if err := json.NewEncoder(w).Encode(sbom); err != nil {
+			// Log the error, but response has already been started
+			fmt.Printf("Error encoding response: %v\n", err)
+		}
 	}
 }
 
@@ -248,7 +254,10 @@ func AnalyzeSBOMHandler(repo storage.Repository) http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			// Log the error, but response has already been started
+			fmt.Printf("Error encoding response: %v\n", err)
+		}
 	}
 }
 
@@ -274,5 +283,8 @@ func writeErrorResponse(w http.ResponseWriter, statusCode int, errorType, messag
 		Error:   errorType,
 		Message: message,
 	}
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		// Log the error, but response has already been started
+		fmt.Printf("Error encoding error response: %v\n", err)
+	}
 }
