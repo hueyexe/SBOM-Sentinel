@@ -38,6 +38,7 @@ func init() {
 	analyzeCmd.Flags().BoolP("summary", "s", false, "Show only summary information")
 	analyzeCmd.Flags().Bool("enable-ai-health-check", false, "Enable AI-powered dependency health analysis (requires Ollama)")
 	analyzeCmd.Flags().Bool("enable-proactive-scan", false, "Enable proactive vulnerability discovery using RAG (requires Ollama)")
+	analyzeCmd.Flags().Bool("enable-vuln-scan", false, "Enable known vulnerability scanning using OSV.dev database")
 }
 
 // runAnalyze executes the analyze command
@@ -50,6 +51,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	format, _ := cmd.Flags().GetString("format")
 	enableAIHealthCheck, _ := cmd.Flags().GetBool("enable-ai-health-check")
 	enableProactiveScan, _ := cmd.Flags().GetBool("enable-proactive-scan")
+	enableVulnScan, _ := cmd.Flags().GetBool("enable-vuln-scan")
 	
 	if verbose {
 		fmt.Printf("Analyzing SBOM file: %s\n", filePath)
@@ -126,6 +128,22 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		}
 	}
 	
+	// Run vulnerability scan if enabled
+	if enableVulnScan {
+		vulnAgent := analysis.NewVulnerabilityScanningAgent()
+		
+		if verbose {
+			fmt.Printf("🔍 Running known vulnerability scan using OSV.dev...\n")
+		}
+		
+		vulnResults, err := vulnAgent.Analyze(ctx, *sbom)
+		if err != nil {
+			fmt.Printf("Warning: Vulnerability scan failed: %v\n", err)
+		} else {
+			allAnalysisResults = append(allAnalysisResults, vulnResults...)
+		}
+	}
+	
 	// Display analysis results if any findings were detected
 	if len(allAnalysisResults) > 0 {
 		fmt.Printf("\n🔬 Analysis Results:\n")
@@ -146,6 +164,9 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		}
 		if !enableProactiveScan {
 			fmt.Printf("   🔍 Tip: Use --enable-proactive-scan for proactive vulnerability discovery using RAG\n")
+		}
+		if !enableVulnScan {
+			fmt.Printf("   🛡️  Tip: Use --enable-vuln-scan for known vulnerability scanning using OSV.dev\n")
 		}
 	}
 	

@@ -55,6 +55,7 @@ export interface AnalysisResponse {
 export interface AnalysisOptions {
   enableAiHealth: boolean;
   enableProactiveScan: boolean;
+  enableVulnScan: boolean;
 }
 
 // File Upload Types

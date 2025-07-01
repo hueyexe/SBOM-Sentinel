@@ -17,6 +17,7 @@ export const AnalysisPage: React.FC = () => {
   const analysisOptions = state?.analysisOptions || {
     enableAiHealth: false,
     enableProactiveScan: false,
+    enableVulnScan: false,
   };
 
   const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(null);
@@ -54,10 +55,10 @@ export const AnalysisPage: React.FC = () => {
     };
 
     fetchAnalysisData();
-  }, [sbomId, analysisOptions.enableAiHealth, analysisOptions.enableProactiveScan]);
+  }, [sbomId, analysisOptions.enableAiHealth, analysisOptions.enableProactiveScan, analysisOptions.enableVulnScan]);
 
   // Calculate total number of available agents
-  const totalAgents = 1 + (analysisOptions.enableAiHealth ? 1 : 0) + (analysisOptions.enableProactiveScan ? 1 : 0);
+  const totalAgents = 1 + (analysisOptions.enableAiHealth ? 1 : 0) + (analysisOptions.enableProactiveScan ? 1 : 0) + (analysisOptions.enableVulnScan ? 1 : 0);
 
   if (loading) {
     return (
@@ -88,7 +89,7 @@ export const AnalysisPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* License Analysis */}
               <div className="bg-white border border-gray-200 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -117,6 +118,17 @@ export const AnalysisPage: React.FC = () => {
                 </div>
                 <p className="text-xs text-gray-500">
                   {analysisOptions.enableProactiveScan ? 'Discovering emerging threats' : 'Disabled'}
+                </p>
+              </div>
+
+              {/* Vulnerability Scanner */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-medium text-gray-900">Vulnerability Scanner</h4>
+                  <div className={`w-2 h-2 rounded-full ${analysisOptions.enableVulnScan ? 'bg-blue-500 animate-pulse' : 'bg-gray-300'}`}></div>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {analysisOptions.enableVulnScan ? 'Scanning for known CVEs' : 'Disabled'}
                 </p>
               </div>
             </div>
@@ -217,6 +229,9 @@ export const AnalysisPage: React.FC = () => {
               </span></li>
               <li>Proactive Vulnerability Discovery: <span className={`font-medium ${analysisOptions.enableProactiveScan ? 'text-green-600' : 'text-gray-500'}`}>
                 {analysisOptions.enableProactiveScan ? 'Enabled' : 'Disabled'}
+              </span></li>
+              <li>Known Vulnerability Scanning: <span className={`font-medium ${analysisOptions.enableVulnScan ? 'text-green-600' : 'text-gray-500'}`}>
+                {analysisOptions.enableVulnScan ? 'Enabled' : 'Disabled'}
               </span></li>
             </ul>
           </div>

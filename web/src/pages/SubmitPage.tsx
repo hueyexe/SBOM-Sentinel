@@ -13,6 +13,7 @@ export const SubmitPage: React.FC = () => {
   const [analysisOptions, setAnalysisOptions] = useState<AnalysisOptions>({
     enableAiHealth: false,
     enableProactiveScan: false,
+    enableVulnScan: false,
   });
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
@@ -166,6 +167,26 @@ export const SubmitPage: React.FC = () => {
                     type="checkbox"
                     checked={analysisOptions.enableProactiveScan}
                     onChange={(e) => handleAnalysisOptionChange('enableProactiveScan', e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* Known Vulnerability Scanning */}
+              <div className="flex items-center justify-between p-3 bg-white rounded-md border">
+                <div className="flex items-center">
+                  <div className={`w-2 h-2 rounded-full mr-3 ${analysisOptions.enableVulnScan ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Known Vulnerability Scanning (CVE)</p>
+                    <p className="text-xs text-gray-500">Checks against OSV.dev vulnerability database</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={analysisOptions.enableVulnScan}
+                    onChange={(e) => handleAnalysisOptionChange('enableVulnScan', e.target.checked)}
                     className="sr-only peer"
                   />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>

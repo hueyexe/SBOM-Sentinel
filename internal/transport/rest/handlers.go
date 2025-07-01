@@ -168,6 +168,8 @@ func AnalyzeSBOMHandler(repo storage.Repository) http.HandlerFunc {
 		enableAIHealthCheck := r.URL.Query().Get("enable-ai-health-check") == "true"
 		// Check for proactive scan flag
 		enableProactiveScan := r.URL.Query().Get("enable-proactive-scan") == "true"
+		// Check for vulnerability scan flag
+		enableVulnScan := r.URL.Query().Get("enable-vuln-scan") == "true"
 
 		// Retrieve SBOM from database
 		ctx := r.Context()
@@ -220,6 +222,19 @@ func AnalyzeSBOMHandler(repo storage.Repository) http.HandlerFunc {
 				allResults = append(allResults, proactiveResults...)
 			}
 			agentsRun = append(agentsRun, proactiveAgent.Name())
+		}
+
+		// Run vulnerability scan if enabled
+		if enableVulnScan {
+			vulnAgent := analysis.NewVulnerabilityScanningAgent()
+			vulnResults, err := vulnAgent.Analyze(ctx, *sbom)
+			if err != nil {
+				// Log warning but don't fail the entire analysis
+				fmt.Printf("Warning: Vulnerability scan failed: %v\n", err)
+			} else {
+				allResults = append(allResults, vulnResults...)
+			}
+			agentsRun = append(agentsRun, vulnAgent.Name())
 		}
 
 		// Generate summary

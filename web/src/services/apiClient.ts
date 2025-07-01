@@ -60,7 +60,7 @@ export class ApiService {
    */
   static async analyzeSbom(
     id: string, 
-    options: AnalysisOptions = { enableAiHealth: false, enableProactiveScan: false }
+    options: AnalysisOptions = { enableAiHealth: false, enableProactiveScan: false, enableVulnScan: false }
   ): Promise<AnalysisResponse> {
     const params = new URLSearchParams();
     
@@ -70,6 +70,10 @@ export class ApiService {
     
     if (options.enableProactiveScan) {
       params.append('enable-proactive-scan', 'true');
+    }
+    
+    if (options.enableVulnScan) {
+      params.append('enable-vuln-scan', 'true');
     }
 
     const url = `/api/v1/sboms/${encodeURIComponent(id)}/analyze${params.toString() ? '?' + params.toString() : ''}`;
@@ -92,7 +96,7 @@ export class ApiService {
    */
   static async submitAndAnalyzeSbom(
     file: File,
-    options: AnalysisOptions = { enableAiHealth: false, enableProactiveScan: false }
+    options: AnalysisOptions = { enableAiHealth: false, enableProactiveScan: false, enableVulnScan: false }
   ): Promise<{ sbomId: string; analysisResult: AnalysisResponse }> {
     // First submit the SBOM
     const submitResponse = await this.submitSbom(file);
