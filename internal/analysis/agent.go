@@ -6,7 +6,7 @@ package analysis
 import (
 	"context"
 
-	"github.com/your-username/sbom-sentinel/internal/core"
+	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
 )
 
 // AnalysisAgent defines the contract for analyzing SBOM documents.

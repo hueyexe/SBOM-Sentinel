@@ -5,16 +5,13 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/chrisclapham/SBOM-Sentinel/cmd/sentinel-cli/cmd"
 )
 
 func main() {
-	fmt.Println("SBOM Sentinel CLI - Coming Soon!")
-	fmt.Println("A powerful Software Bill of Materials analysis tool")
-	
-	// TODO: Implement CLI commands and flags
-	// TODO: Wire up dependency injection for ports and adapters
-	// TODO: Add support for various SBOM format parsing
-	// TODO: Integrate analysis agents
-	
-	os.Exit(0)
+	if err := cmd.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }

@@ -5,7 +5,7 @@ package storage
 import (
 	"context"
 
-	"github.com/your-username/sbom-sentinel/internal/core"
+	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
 )
 
 // Repository defines the contract for storing and retrieving SBOM documents.
