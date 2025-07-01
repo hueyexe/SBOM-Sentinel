@@ -22,6 +22,7 @@ Currently supports:
 - CycloneDX JSON format
 - License compliance analysis
 - AI-powered dependency health analysis (with --enable-ai-health-check)
+- Proactive vulnerability discovery using RAG (with --enable-proactive-scan)
 
 The command will parse the SBOM file and display information about the
 components found within it, along with any security or compliance findings.`,
@@ -36,6 +37,7 @@ func init() {
 	analyzeCmd.Flags().StringP("format", "f", "auto", "SBOM format (auto, cyclonedx)")
 	analyzeCmd.Flags().BoolP("summary", "s", false, "Show only summary information")
 	analyzeCmd.Flags().Bool("enable-ai-health-check", false, "Enable AI-powered dependency health analysis (requires Ollama)")
+	analyzeCmd.Flags().Bool("enable-proactive-scan", false, "Enable proactive vulnerability discovery using RAG (requires Ollama)")
 }
 
 // runAnalyze executes the analyze command
@@ -47,6 +49,7 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 	summary, _ := cmd.Flags().GetBool("summary")
 	format, _ := cmd.Flags().GetString("format")
 	enableAIHealthCheck, _ := cmd.Flags().GetBool("enable-ai-health-check")
+	enableProactiveScan, _ := cmd.Flags().GetBool("enable-proactive-scan")
 	
 	if verbose {
 		fmt.Printf("Analyzing SBOM file: %s\n", filePath)
@@ -107,6 +110,22 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		}
 	}
 	
+	// Run proactive vulnerability scan if enabled
+	if enableProactiveScan {
+		proactiveAgent := analysis.NewProactiveVulnerabilityAgent()
+		
+		if verbose {
+			fmt.Printf("🔍 Running proactive vulnerability discovery using RAG...\n")
+		}
+		
+		proactiveResults, err := proactiveAgent.Analyze(ctx, *sbom)
+		if err != nil {
+			fmt.Printf("Warning: Proactive vulnerability scan failed: %v\n", err)
+		} else {
+			allAnalysisResults = append(allAnalysisResults, proactiveResults...)
+		}
+	}
+	
 	// Display analysis results if any findings were detected
 	if len(allAnalysisResults) > 0 {
 		fmt.Printf("\n🔬 Analysis Results:\n")
@@ -124,6 +143,9 @@ func runAnalyze(cmd *cobra.Command, args []string) error {
 		fmt.Printf("\n✅ Analysis Complete: No issues detected\n")
 		if !enableAIHealthCheck {
 			fmt.Printf("   💡 Tip: Use --enable-ai-health-check for AI-powered dependency health analysis\n")
+		}
+		if !enableProactiveScan {
+			fmt.Printf("   🔍 Tip: Use --enable-proactive-scan for proactive vulnerability discovery using RAG\n")
 		}
 	}
 	

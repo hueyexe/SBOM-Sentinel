@@ -16,7 +16,8 @@ Traditional vulnerability scanners only scratch the surface. SBOM Sentinel goes 
 - **📄 CycloneDX SBOM Parsing** - Complete support for industry-standard SBOM format
 - **⚖️ License Compliance Analysis** - Automated detection of high-risk copyleft licenses
 - **🤖 AI-Powered Dependency Health Checks** - Intelligent assessment using local Ollama LLM
-- **💾 SQLite-based Persistence** - Efficient storage and retrieval of SBOM documents
+- **� Proactive Vulnerability Discovery** - RAG-powered detection of pre-CVE threats from security intelligence
+- **�💾 SQLite-based Persistence** - Efficient storage and retrieval of SBOM documents
 - **🔄 Dual Interface** - Both command-line tool and REST API server
 - **🏗️ Hexagonal Architecture** - Clean, testable, and extensible codebase design
 - **📊 Comprehensive Analysis Results** - Detailed findings with severity classification
@@ -63,8 +64,11 @@ Traditional vulnerability scanners only scratch the surface. SBOM Sentinel goes 
 # Enable AI-powered dependency health analysis (requires Ollama)
 ./bin/sentinel-cli analyze your-sbom.json --enable-ai-health-check
 
-# Combine with verbose output for maximum detail
-./bin/sentinel-cli analyze your-sbom.json --enable-ai-health-check --verbose
+# Enable proactive vulnerability discovery using RAG (requires Ollama)
+./bin/sentinel-cli analyze your-sbom.json --enable-proactive-scan
+
+# Combine all AI features with verbose output
+./bin/sentinel-cli analyze your-sbom.json --enable-ai-health-check --enable-proactive-scan --verbose
 ```
 
 **Example Output:**
@@ -80,6 +84,9 @@ Traditional vulnerability scanners only scratch the surface. SBOM Sentinel goes 
 
    2. 🟡 [Medium] Dependency Health Agent
       The project 'abandoned-utility' appears to be unmaintained and deprecated
+
+   3. 🟡 [Medium] Proactive Vulnerability Agent
+      Component 'example-lib' may be vulnerable to deserialization issues based on security intelligence
 ```
 
 ### API Usage
@@ -116,6 +123,14 @@ curl -X POST \
 # Run analysis with AI health checks
 curl -X POST \
   "http://localhost:8080/api/v1/sboms/urn:uuid:12345678-1234-1234-1234-123456789012/analyze?enable-ai-health-check=true"
+
+# Run analysis with proactive vulnerability discovery
+curl -X POST \
+  "http://localhost:8080/api/v1/sboms/urn:uuid:12345678-1234-1234-1234-123456789012/analyze?enable-proactive-scan=true"
+
+# Run comprehensive analysis with all AI features
+curl -X POST \
+  "http://localhost:8080/api/v1/sboms/urn:uuid:12345678-1234-1234-1234-123456789012/analyze?enable-ai-health-check=true&enable-proactive-scan=true"
 ```
 
 **Example Analysis Response:**
@@ -127,15 +142,21 @@ curl -X POST \
       "agent_name": "License Agent",
       "finding": "Component 'example-lib' (v1.0.0) uses high-risk copyleft license 'GPL-3.0-only'",
       "severity": "High"
+    },
+    {
+      "agent_name": "Proactive Vulnerability Agent",
+      "finding": "Component 'data-processor' may be vulnerable to memory leaks based on security discussions",
+      "severity": "Medium"
     }
   ],
-  "summary": {
-    "total_findings": 1,
-    "findings_by_severity": {
-      "High": 1
-    },
-    "agents_run": ["License Agent"]
-  }
+      "summary": {
+      "total_findings": 2,
+      "findings_by_severity": {
+        "High": 1,
+        "Medium": 1
+      },
+      "agents_run": ["License Agent", "Proactive Vulnerability Agent"]
+    }
 }
 ```
 
@@ -158,11 +179,21 @@ SBOM Sentinel integrates with [Ollama](https://ollama.ai/) to provide intelligen
 3. **Start Ollama:** `ollama serve`
 
 ### How It Works
+
+**Dependency Health Analysis:**
 The AI agent analyzes each component by:
 - Querying the LLM about project health and maintenance status
 - Detecting risk indicators like "unmaintained", "deprecated", "abandoned"
 - Providing contextual insights beyond traditional vulnerability databases
 - Flagging components that may pose supply chain risks
+
+**Proactive Vulnerability Discovery:**
+The RAG-powered agent provides early threat detection by:
+- Harvesting security intelligence from discussions, forums, and research
+- Creating vector embeddings of security documents using local AI
+- Performing similarity searches against component names and versions
+- Using LLM analysis to identify potential vulnerabilities before CVE publication
+- Discovering emerging threats from unstructured security data sources
 
 ## 📋 Supported SBOM Formats
 
@@ -215,7 +246,8 @@ SBOM Sentinel follows a **hexagonal (ports and adapters) architecture**:
 | `--verbose` | Enable detailed output |
 | `--summary` | Show summary only |
 | `--format` | SBOM format (auto, cyclonedx) |
-| `--enable-ai-health-check` | Enable AI analysis |
+| `--enable-ai-health-check` | Enable AI health analysis |
+| `--enable-proactive-scan` | Enable RAG-based vulnerability discovery |
 
 ## 🤝 Contributing
 

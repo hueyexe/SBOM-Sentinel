@@ -47,10 +47,12 @@ func main() {
 	
 	fmt.Printf("Server starting on port %s\n", port)
 	fmt.Println("Available endpoints:")
-	fmt.Println("  POST /api/v1/sboms                    - Submit SBOM file")
-	fmt.Println("  GET  /api/v1/sboms/get                - Retrieve SBOM by ID")
-	fmt.Println("  POST /api/v1/sboms/{id}/analyze       - Analyze stored SBOM")
-	fmt.Println("  GET  /health                          - Health check")
+	fmt.Println("  POST /api/v1/sboms                         - Submit SBOM file")
+	fmt.Println("  GET  /api/v1/sboms/get                     - Retrieve SBOM by ID")
+	fmt.Println("  POST /api/v1/sboms/{id}/analyze            - Analyze stored SBOM")
+	fmt.Println("       Query params: ?enable-ai-health-check=true")
+	fmt.Println("                     ?enable-proactive-scan=true")
+	fmt.Println("  GET  /health                               - Health check")
 	
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
