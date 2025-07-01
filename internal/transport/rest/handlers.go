@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
+	"github.com/chrisclapham/SBOM-Sentinel/internal/analysis"
+	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
 	"github.com/chrisclapham/SBOM-Sentinel/internal/ingestion"
 	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/storage"
 )
@@ -20,6 +23,20 @@ type SubmitSBOMResponse struct {
 type ErrorResponse struct {
 	Error   string `json:"error"`
 	Message string `json:"message"`
+}
+
+// AnalysisResponse represents the JSON response for SBOM analysis.
+type AnalysisResponse struct {
+	SBOMID  string                `json:"sbom_id"`
+	Results []core.AnalysisResult `json:"results"`
+	Summary AnalysisSummary       `json:"summary"`
+}
+
+// AnalysisSummary provides a summary of the analysis results.
+type AnalysisSummary struct {
+	TotalFindings   int            `json:"total_findings"`
+	FindingsBySeverity map[string]int `json:"findings_by_severity"`
+	AgentsRun       []string       `json:"agents_run"`
 }
 
 // SubmitSBOMHandler creates an HTTP handler for submitting SBOM files.
@@ -122,6 +139,101 @@ func GetSBOMHandler(repo storage.Repository) http.HandlerFunc {
 		// Return the SBOM
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(sbom)
+	}
+}
+
+// AnalyzeSBOMHandler creates an HTTP handler for analyzing stored SBOMs.
+// It expects a POST request to /api/v1/sboms/{id}/analyze with optional query parameters.
+func AnalyzeSBOMHandler(repo storage.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Only allow POST requests
+		if r.Method != http.MethodPost {
+			writeErrorResponse(w, http.StatusMethodNotAllowed, "method_not_allowed", "Only POST method is allowed")
+			return
+		}
+
+		// Set response headers
+		w.Header().Set("Content-Type", "application/json")
+
+		// Extract SBOM ID from URL path
+		// Expected format: /api/v1/sboms/{id}/analyze
+		pathParts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
+		if len(pathParts) < 4 || pathParts[3] == "" {
+			writeErrorResponse(w, http.StatusBadRequest, "missing_id", "SBOM ID is required in URL path")
+			return
+		}
+		sbomID := pathParts[3]
+
+		// Check for AI health check flag
+		enableAIHealthCheck := r.URL.Query().Get("enable-ai-health-check") == "true"
+
+		// Retrieve SBOM from database
+		ctx := r.Context()
+		sbom, err := repo.FindByID(ctx, sbomID)
+		if err != nil {
+			writeErrorResponse(w, http.StatusInternalServerError, "storage_error", fmt.Sprintf("Failed to retrieve SBOM: %v", err))
+			return
+		}
+
+		if sbom == nil {
+			writeErrorResponse(w, http.StatusNotFound, "not_found", "SBOM not found")
+			return
+		}
+
+		// Run analysis agents
+		var allResults []core.AnalysisResult
+		var agentsRun []string
+
+		// Run license analysis
+		licenseAgent := analysis.NewLicenseAgent()
+		licenseResults, err := licenseAgent.Analyze(ctx, *sbom)
+		if err != nil {
+			writeErrorResponse(w, http.StatusInternalServerError, "analysis_error", fmt.Sprintf("License analysis failed: %v", err))
+			return
+		}
+		allResults = append(allResults, licenseResults...)
+		agentsRun = append(agentsRun, licenseAgent.Name())
+
+		// Run AI health check if enabled
+		if enableAIHealthCheck {
+			healthAgent := analysis.NewDependencyHealthAgent()
+			healthResults, err := healthAgent.Analyze(ctx, *sbom)
+			if err != nil {
+				// Log warning but don't fail the entire analysis
+				fmt.Printf("Warning: AI health analysis failed: %v\n", err)
+			} else {
+				allResults = append(allResults, healthResults...)
+			}
+			agentsRun = append(agentsRun, healthAgent.Name())
+		}
+
+		// Generate summary
+		summary := generateAnalysisSummary(allResults, agentsRun)
+
+		// Create response
+		response := AnalysisResponse{
+			SBOMID:  sbomID,
+			Results: allResults,
+			Summary: summary,
+		}
+
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+// generateAnalysisSummary creates a summary of analysis results.
+func generateAnalysisSummary(results []core.AnalysisResult, agentsRun []string) AnalysisSummary {
+	findingsBySeverity := make(map[string]int)
+	
+	for _, result := range results {
+		findingsBySeverity[result.Severity]++
+	}
+
+	return AnalysisSummary{
+		TotalFindings:      len(results),
+		FindingsBySeverity: findingsBySeverity,
+		AgentsRun:          agentsRun,
 	}
 }
 

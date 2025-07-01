@@ -38,6 +38,7 @@ func main() {
 	// API v1 routes
 	http.HandleFunc("/api/v1/sboms", rest.SubmitSBOMHandler(repo))
 	http.HandleFunc("/api/v1/sboms/get", rest.GetSBOMHandler(repo))
+	http.HandleFunc("/api/v1/sboms/", rest.AnalyzeSBOMHandler(repo)) // Handles /api/v1/sboms/{id}/analyze
 	
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -46,9 +47,10 @@ func main() {
 	
 	fmt.Printf("Server starting on port %s\n", port)
 	fmt.Println("Available endpoints:")
-	fmt.Println("  POST /api/v1/sboms       - Submit SBOM file")
-	fmt.Println("  GET  /api/v1/sboms/get   - Retrieve SBOM by ID")
-	fmt.Println("  GET  /health             - Health check")
+	fmt.Println("  POST /api/v1/sboms                    - Submit SBOM file")
+	fmt.Println("  GET  /api/v1/sboms/get                - Retrieve SBOM by ID")
+	fmt.Println("  POST /api/v1/sboms/{id}/analyze       - Analyze stored SBOM")
+	fmt.Println("  GET  /health                          - Health check")
 	
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
