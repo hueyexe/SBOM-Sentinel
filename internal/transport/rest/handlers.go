@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/analysis"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/ingestion"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/storage"
+	"github.com/hueyexe/SBOM-Sentinel/internal/analysis"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/ingestion"
+	"github.com/hueyexe/SBOM-Sentinel/internal/platform/storage"
 )
 
 // SubmitSBOMResponse represents the JSON response for SBOM submission.
@@ -34,9 +34,9 @@ type AnalysisResponse struct {
 
 // AnalysisSummary provides a summary of the analysis results.
 type AnalysisSummary struct {
-	TotalFindings   int            `json:"total_findings"`
+	TotalFindings      int            `json:"total_findings"`
 	FindingsBySeverity map[string]int `json:"findings_by_severity"`
-	AgentsRun       []string       `json:"agents_run"`
+	AgentsRun          []string       `json:"agents_run"`
 }
 
 // SubmitSBOMHandler creates an HTTP handler for submitting SBOM files.
@@ -264,7 +264,7 @@ func AnalyzeSBOMHandler(repo storage.Repository) http.HandlerFunc {
 // generateAnalysisSummary creates a summary of analysis results.
 func generateAnalysisSummary(results []core.AnalysisResult, agentsRun []string) AnalysisSummary {
 	findingsBySeverity := make(map[string]int)
-	
+
 	for _, result := range results {
 		findingsBySeverity[result.Severity]++
 	}

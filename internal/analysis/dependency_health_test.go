@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -133,7 +133,7 @@ func TestDependencyHealthAgent_Analyze(t *testing.T) {
 				callCount++
 				w.Header().Set("Content-Type", "application/json")
 				w.WriteHeader(tt.mockStatusCode)
-				
+
 				// Alternate responses for multiple component tests
 				if tt.name == "Multiple components with mixed health" {
 					if callCount == 1 {
@@ -196,7 +196,7 @@ func TestDependencyHealthAgent_generatePrompt(t *testing.T) {
 	}
 
 	prompt := agent.generatePrompt(component)
-	
+
 	assert.Contains(t, prompt, "test-library")
 	assert.Contains(t, prompt, "1.2.3")
 	assert.Contains(t, prompt, "actively maintained")

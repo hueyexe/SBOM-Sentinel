@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/vectordb"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/platform/vectordb"
 )
 
 // ProactiveVulnerabilityAgent analyzes SBOM components for potential vulnerabilities using RAG.
@@ -27,7 +27,7 @@ type ProactiveVulnerabilityAgent struct {
 func NewProactiveVulnerabilityAgent() *ProactiveVulnerabilityAgent {
 	vectorDB := vectordb.NewMemoryVectorDB()
 	harvester := vectordb.NewHarvester(vectorDB)
-	
+
 	return &ProactiveVulnerabilityAgent{
 		vectorDB:  vectorDB,
 		harvester: harvester,
@@ -110,11 +110,11 @@ func (pva *ProactiveVulnerabilityAgent) Analyze(ctx context.Context, sbom core.S
 // initializeSecurityIntelligence populates the vector database with security intelligence data.
 func (pva *ProactiveVulnerabilityAgent) initializeSecurityIntelligence(ctx context.Context) error {
 	fmt.Println("🔍 Initializing security intelligence database...")
-	
+
 	if err := pva.harvester.HarvestMockData(ctx); err != nil {
 		return fmt.Errorf("failed to harvest security data: %w", err)
 	}
-	
+
 	fmt.Printf("✅ Security intelligence database initialized with %d documents\n", pva.vectorDB.Size())
 	return nil
 }
@@ -124,11 +124,11 @@ func (pva *ProactiveVulnerabilityAgent) analyzeWithLLM(ctx context.Context, comp
 	// Build context from relevant documents
 	var contextBuilder strings.Builder
 	contextBuilder.WriteString("Security Intelligence Context:\n")
-	
+
 	for i, doc := range docs {
 		contextBuilder.WriteString(fmt.Sprintf("%d. %s\n", i+1, doc.Text))
 	}
-	
+
 	// Create prompt for LLM
 	prompt := fmt.Sprintf(`Based on the security intelligence context provided, analyze if the component '%s' version '%s' has any potential security vulnerabilities or risks.
 
@@ -146,8 +146,6 @@ Response:`, component.Name, component.Version, contextBuilder.String(), componen
 
 	return pva.queryLLM(ctx, prompt)
 }
-
-
 
 // queryLLM sends a query to the LLM and returns the response.
 func (pva *ProactiveVulnerabilityAgent) queryLLM(ctx context.Context, prompt string) (string, error) {
@@ -185,7 +183,7 @@ func (pva *ProactiveVulnerabilityAgent) queryLLM(ctx context.Context, prompt str
 	}
 
 	response := strings.TrimSpace(ollamaResp.Response)
-	
+
 	// Filter out "no concerns" responses
 	if strings.Contains(strings.ToLower(response), "no relevant security concerns") ||
 		strings.Contains(strings.ToLower(response), "no security issues") ||

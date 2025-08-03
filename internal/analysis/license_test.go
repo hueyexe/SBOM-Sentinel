@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,10 +15,10 @@ func TestLicenseAgent_Name(t *testing.T) {
 
 func TestLicenseAgent_Analyze(t *testing.T) {
 	tests := []struct {
-		name           string
-		sbom           core.SBOM
-		expectedCount  int
-		expectedFindings []string
+		name               string
+		sbom               core.SBOM
+		expectedCount      int
+		expectedFindings   []string
 		expectedSeverities []string
 	}{
 		{
@@ -199,11 +199,11 @@ func TestLicenseAgent_Analyze(t *testing.T) {
 			// Check each result
 			for i, result := range results {
 				assert.Equal(t, "License Agent", result.AgentName)
-				
+
 				if i < len(tt.expectedSeverities) {
 					assert.Equal(t, tt.expectedSeverities[i], result.Severity)
 				}
-				
+
 				if i < len(tt.expectedFindings) {
 					assert.Contains(t, result.Finding, tt.expectedFindings[i])
 				}
@@ -260,7 +260,7 @@ func TestLicenseAgent_isHighRiskLicense(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			description, isRisk := agent.isHighRiskLicense(tt.license)
 			assert.Equal(t, tt.expectRisk, isRisk)
-			
+
 			if tt.description != "" {
 				assert.Equal(t, tt.description, description)
 			}

@@ -5,7 +5,7 @@ package ingestion
 import (
 	"io"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
 )
 
 // Parser defines the contract for parsing SBOM documents from various formats.

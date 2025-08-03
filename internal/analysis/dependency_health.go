@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
 )
 
 // DependencyHealthAgent analyzes SBOM components for health and maintenance status using AI.
@@ -20,8 +20,6 @@ type DependencyHealthAgent struct {
 	model     string
 	client    *http.Client
 }
-
-
 
 // NewDependencyHealthAgent creates a new instance of DependencyHealthAgent.
 func NewDependencyHealthAgent() *DependencyHealthAgent {
@@ -128,7 +126,7 @@ func (dha *DependencyHealthAgent) queryOllama(ctx context.Context, prompt string
 // indicatesRisk checks if the LLM response indicates potential risk.
 func (dha *DependencyHealthAgent) indicatesRisk(response string) bool {
 	response = strings.ToLower(response)
-	
+
 	// Keywords that indicate potential risk
 	riskKeywords := []string{
 		"unmaintained",

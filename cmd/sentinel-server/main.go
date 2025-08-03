@@ -8,27 +8,27 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/database"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/transport/rest"
+	"github.com/hueyexe/SBOM-Sentinel/internal/platform/database"
+	"github.com/hueyexe/SBOM-Sentinel/internal/transport/rest"
 )
 
 func main() {
 	fmt.Println("SBOM Sentinel Server - Starting...")
-	
+
 	// Initialize SQLite database
 	dbPath := os.Getenv("DATABASE_PATH")
 	if dbPath == "" {
 		dbPath = "./sentinel.db"
 	}
-	
+
 	repo, err := database.NewSQLiteRepository(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 	defer repo.Close()
-	
+
 	fmt.Printf("Database initialized: %s\n", dbPath)
-	
+
 	// Configure routes
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -36,17 +36,17 @@ func main() {
 			log.Printf("Error writing health check response: %v", err)
 		}
 	})
-	
+
 	// API v1 routes
 	http.HandleFunc("/api/v1/sboms", rest.SubmitSBOMHandler(repo))
 	http.HandleFunc("/api/v1/sboms/get", rest.GetSBOMHandler(repo))
 	http.HandleFunc("/api/v1/sboms/", rest.AnalyzeSBOMHandler(repo)) // Handles /api/v1/sboms/{id}/analyze
-	
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-	
+
 	fmt.Printf("Server starting on port %s\n", port)
 	fmt.Println("Available endpoints:")
 	fmt.Println("  POST /api/v1/sboms                         - Submit SBOM file")
@@ -55,6 +55,6 @@ func main() {
 	fmt.Println("       Query params: ?enable-ai-health-check=true")
 	fmt.Println("                     ?enable-proactive-scan=true")
 	fmt.Println("  GET  /health                               - Health check")
-	
+
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

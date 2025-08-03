@@ -1,23 +1,22 @@
 # SBOM Sentinel
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/chrisclapham/SBOM-Sentinel)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8)](https://golang.org/)
 [![SQLite](https://img.shields.io/badge/database-SQLite-003B57)](https://sqlite.org/)
 
-**SBOM Sentinel** is an advanced Software Bill of Materials (SBOM) analysis platform that provides deep, contextual intelligence on software supply chain risks through AI-powered analysis and traditional security scanning.
+**SBOM Sentinel** is a Software Bill of Materials (SBOM) analysis platform that provides deep, contextual intelligence on software supply chain risks through AI-powered analysis and traditional security scanning.
 
 ## Why SBOM Sentinel?
 
-Traditional vulnerability scanners only scratch the surface. SBOM Sentinel goes beyond CVE databases by leveraging local AI models to assess dependency health, maintenance status, and emerging risks that haven't yet been cataloged in vulnerability databases. It provides both immediate actionable insights and strategic intelligence about your software supply chain.
+SBOM Sentinel goes beyond CVE databases by leveraging local AI models to assess dependency health, maintenance status, and emerging risks that haven't yet been cataloged in vulnerability databases. It provides both immediate actionable insights and strategic intelligence about your software supply chain.
 
 ## 🚀 Core Features
 
 - **📄 CycloneDX SBOM Parsing** - Complete support for industry-standard SBOM format
 - **⚖️ License Compliance Analysis** - Automated detection of high-risk copyleft licenses
 - **🤖 AI-Powered Dependency Health Checks** - Intelligent assessment using local Ollama LLM
-- **� Proactive Vulnerability Discovery** - RAG-powered detection of pre-CVE threats from security intelligence
-- **�💾 SQLite-based Persistence** - Efficient storage and retrieval of SBOM documents
+- **🔍 Proactive Vulnerability Discovery** - RAG-powered detection of pre-CVE threats from security intelligence
+- **💾 SQLite-based Persistence** - Efficient storage and retrieval of SBOM documents
 - **🔄 Dual Interface** - Both command-line tool and REST API server
 - **🏗️ Hexagonal Architecture** - Clean, testable, and extensible codebase design
 - **📊 Comprehensive Analysis Results** - Detailed findings with severity classification
@@ -28,7 +27,7 @@ Traditional vulnerability scanners only scratch the surface. SBOM Sentinel goes 
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/chrisclapham/SBOM-Sentinel.git
+   git clone https://github.com/hueyexe/SBOM-Sentinel.git
    cd SBOM-Sentinel
    ```
 
@@ -249,43 +248,17 @@ SBOM Sentinel follows a **hexagonal (ports and adapters) architecture**:
 | `--enable-ai-health-check` | Enable AI health analysis |
 | `--enable-proactive-scan` | Enable RAG-based vulnerability discovery |
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-### Development Setup
-```bash
-# Clone and build
-git clone https://github.com/chrisclapham/SBOM-Sentinel.git
-cd SBOM-Sentinel
-go mod download
-go build ./...
-
-# Run tests
-go test ./...
-```
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation:** [Wiki](https://github.com/chrisclapham/SBOM-Sentinel/wiki)
-- **Issues:** [GitHub Issues](https://github.com/chrisclapham/SBOM-Sentinel/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/chrisclapham/SBOM-Sentinel/discussions)
 
 ## 🚧 Roadmap
 
 - [ ] **SPDX format support**
 - [ ] **PostgreSQL backend option**
-- [ ] **Web dashboard interface**
+- [x] **Web dashboard interface**
 - [ ] **Vulnerability database integration**
 - [ ] **Custom analysis rule engine**
-- [ ] **Batch processing capabilities**
+- [x] **Batch processing capabilities**
 - [ ] **Export to various report formats**
 - [ ] **Integration with CI/CD pipelines**
-
----
-
-**Built with ❤️ for supply chain security**

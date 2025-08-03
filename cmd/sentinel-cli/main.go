@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/chrisclapham/SBOM-Sentinel/cmd/sentinel-cli/cmd"
+	"github.com/hueyexe/SBOM-Sentinel/cmd/sentinel-cli/cmd"
 )
 
 func main() {

@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/vectordb"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/platform/vectordb"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -205,7 +205,7 @@ func TestProactiveVulnerabilityAgent_analyzeWithLLM(t *testing.T) {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var reqBody map[string]interface{}
 		json.NewDecoder(r.Body).Decode(&reqBody)
-		
+
 		prompt := reqBody["prompt"].(string)
 		assert.Contains(t, prompt, "test-component")
 		assert.Contains(t, prompt, "1.0.0")
@@ -213,7 +213,7 @@ func TestProactiveVulnerabilityAgent_analyzeWithLLM(t *testing.T) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		
+
 		response := map[string]interface{}{
 			"response": "Found potential security vulnerabilities in test-component.",
 		}

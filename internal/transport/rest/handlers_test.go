@@ -11,7 +11,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -477,7 +477,7 @@ func TestAnalyzeSBOMHandler(t *testing.T) {
 		{
 			name:    "Invalid URL path - missing SBOM ID",
 			method:  "POST",
-			urlPath: "/api/v1/sboms//analyze",  // Empty ID between slashes
+			urlPath: "/api/v1/sboms//analyze", // Empty ID between slashes
 			mockBehavior: func(mockRepo *MockRepository) {
 				// No expectations as the empty ID is caught by validation first
 			},
@@ -559,10 +559,10 @@ func TestAnalyzeSBOMHandler(t *testing.T) {
 
 func TestGenerateAnalysisSummary(t *testing.T) {
 	tests := []struct {
-		name             string
-		results          []core.AnalysisResult
-		agentsRun        []string
-		expectedSummary  AnalysisSummary
+		name            string
+		results         []core.AnalysisResult
+		agentsRun       []string
+		expectedSummary AnalysisSummary
 	}{
 		{
 			name: "Multiple findings with different severities",
@@ -584,8 +584,8 @@ func TestGenerateAnalysisSummary(t *testing.T) {
 			},
 		},
 		{
-			name:    "No findings",
-			results: []core.AnalysisResult{},
+			name:      "No findings",
+			results:   []core.AnalysisResult{},
 			agentsRun: []string{"License Agent"},
 			expectedSummary: AnalysisSummary{
 				TotalFindings:      0,
@@ -612,7 +612,7 @@ func TestGenerateAnalysisSummary(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			summary := generateAnalysisSummary(tt.results, tt.agentsRun)
-			
+
 			assert.Equal(t, tt.expectedSummary.TotalFindings, summary.TotalFindings)
 			assert.Equal(t, tt.expectedSummary.FindingsBySeverity, summary.FindingsBySeverity)
 			assert.Equal(t, tt.expectedSummary.AgentsRun, summary.AgentsRun)
@@ -677,21 +677,21 @@ func TestWriteErrorResponse(t *testing.T) {
 func createMultipartRequest(fieldName, fileName, content string) (*http.Request, error) {
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	
+
 	part, err := writer.CreateFormFile(fieldName, fileName)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	_, err = io.WriteString(part, content)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	writer.Close()
-	
+
 	req := httptest.NewRequest("POST", "/api/v1/sboms", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	
+
 	return req, nil
 }

@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/database"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/transport/rest"
+	"github.com/hueyexe/SBOM-Sentinel/internal/platform/database"
+	"github.com/hueyexe/SBOM-Sentinel/internal/transport/rest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -39,13 +39,13 @@ func SetupTestServer(t *testing.T) *TestServer {
 
 	// Create HTTP server with real handlers
 	mux := http.NewServeMux()
-	
+
 	// Health check endpoint
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok","service":"sbom-sentinel"}`))
 	})
-	
+
 	// API v1 routes
 	mux.HandleFunc("/api/v1/sboms", rest.SubmitSBOMHandler(repo))
 	mux.HandleFunc("/api/v1/sboms/get", rest.GetSBOMHandler(repo))
@@ -82,7 +82,7 @@ type SubmitSBOMResponse struct {
 
 // AnalysisResponse represents the response from SBOM analysis
 type AnalysisResponse struct {
-	SBOMID  string                `json:"sbom_id"`
+	SBOMID  string                   `json:"sbom_id"`
 	Results []map[string]interface{} `json:"results"`
 	Summary map[string]interface{}   `json:"summary"`
 }
@@ -114,7 +114,7 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 
 	// Step 1: Submit SBOM file
 	t.Log("Step 1: Submitting SBOM file...")
-	
+
 	// Create test SBOM data
 	testSBOM := createTestSBOM()
 	sbomJSON, err := json.Marshal(testSBOM)
@@ -125,10 +125,10 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 	writer := multipart.NewWriter(&requestBody)
 	part, err := writer.CreateFormFile("sbom", "test-sbom.json")
 	require.NoError(t, err)
-	
+
 	_, err = part.Write(sbomJSON)
 	require.NoError(t, err)
-	
+
 	err = writer.Close()
 	require.NoError(t, err)
 
@@ -154,13 +154,13 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 
 	assert.NotEmpty(t, submitResp.ID, "Response should contain SBOM ID")
 	assert.Equal(t, "SBOM submitted successfully", submitResp.Message)
-	
+
 	sbomID := submitResp.ID
 	t.Logf("✓ SBOM submitted successfully with ID: %s", sbomID)
 
 	// Step 2: Retrieve the submitted SBOM
 	t.Log("Step 2: Retrieving submitted SBOM...")
-	
+
 	getURL := fmt.Sprintf("%s/api/v1/sboms/get?id=%s", ts.Server.URL, sbomID)
 	resp, err = http.Get(getURL)
 	require.NoError(t, err)
@@ -177,12 +177,12 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 
 	assert.Equal(t, sbomID, retrievedSBOM["id"])
 	assert.Equal(t, "Test Application", retrievedSBOM["name"])
-	
+
 	t.Logf("✓ SBOM retrieved successfully")
 
 	// Step 3: Analyze SBOM with license agent only (default)
 	t.Log("Step 3: Analyzing SBOM with license agent...")
-	
+
 	analyzeURL := fmt.Sprintf("%s/api/v1/sboms/%s/analyze", ts.Server.URL, sbomID)
 	req, err = http.NewRequest("POST", analyzeURL, nil)
 	require.NoError(t, err)
@@ -207,7 +207,7 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 
 	// Check that we have license findings (GPL-3.0-only should be detected)
 	assert.Greater(t, len(analysisResp.Results), 0, "Should have at least one finding from GPL license")
-	
+
 	// Verify license agent finding
 	foundLicenseFinding := false
 	for _, result := range analysisResp.Results {
@@ -226,8 +226,8 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 
 	// Step 4: Analyze SBOM with multiple agents enabled
 	t.Log("Step 4: Analyzing SBOM with multiple agents...")
-	
-	multiAgentURL := fmt.Sprintf("%s/api/v1/sboms/%s/analyze?enable-ai-health-check=true&enable-vuln-scan=true", 
+
+	multiAgentURL := fmt.Sprintf("%s/api/v1/sboms/%s/analyze?enable-ai-health-check=true&enable-vuln-scan=true",
 		ts.Server.URL, sbomID)
 	req, err = http.NewRequest("POST", multiAgentURL, nil)
 	require.NoError(t, err)
@@ -247,18 +247,18 @@ func TestCompleteAPIWorkflow(t *testing.T) {
 
 	// Verify multi-agent response
 	assert.Equal(t, sbomID, multiAgentResp.SBOMID)
-	
+
 	// Check summary contains multiple agents
 	if summary, ok := multiAgentResp.Summary["agents_run"].([]interface{}); ok {
 		agentNames := make([]string, len(summary))
 		for i, agent := range summary {
 			agentNames[i] = agent.(string)
 		}
-		
+
 		assert.Contains(t, agentNames, "License Agent", "Should include License Agent")
 		assert.Contains(t, agentNames, "Dependency Health Agent", "Should include Dependency Health Agent")
 		assert.Contains(t, agentNames, "Vulnerability Scanner", "Should include Vulnerability Scanner")
-		
+
 		t.Logf("✓ Multi-agent analysis ran agents: %v", agentNames)
 	}
 
@@ -309,7 +309,7 @@ func TestErrorHandling(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			var req *http.Request
 			var err error
-			
+
 			if tt.body != nil {
 				req, err = http.NewRequest(tt.method, ts.Server.URL+tt.url, tt.body)
 			} else {
@@ -326,7 +326,7 @@ func TestErrorHandling(t *testing.T) {
 			require.NoError(t, err)
 			defer resp.Body.Close()
 
-			assert.Equal(t, tt.expectedStatus, resp.StatusCode, 
+			assert.Equal(t, tt.expectedStatus, resp.StatusCode,
 				"Expected status %d for %s", tt.expectedStatus, tt.name)
 		})
 	}

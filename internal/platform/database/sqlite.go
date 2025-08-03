@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hueyexe/SBOM-Sentinel/internal/core"
+	"github.com/hueyexe/SBOM-Sentinel/internal/platform/storage"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/core"
-	"github.com/chrisclapham/SBOM-Sentinel/internal/platform/storage"
 )
 
 // SQLiteRepository implements the storage.Repository interface using SQLite.
@@ -27,7 +27,7 @@ func NewSQLiteRepository(dbPath string) (*SQLiteRepository, error) {
 	}
 
 	repo := &SQLiteRepository{db: db}
-	
+
 	if err := repo.initSchema(); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed to initialize schema: %w", err)
@@ -79,7 +79,7 @@ func (r *SQLiteRepository) Store(ctx context.Context, sbom core.SBOM) error {
 	// Check if SBOM already exists
 	var existingID string
 	err = r.db.QueryRowContext(ctx, "SELECT id FROM sboms WHERE id = ?", sbom.ID).Scan(&existingID)
-	
+
 	if err == sql.ErrNoRows {
 		// Insert new SBOM
 		query := `
