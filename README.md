@@ -1,5 +1,6 @@
 # SBOM Sentinel
 
+![Development Status](https://img.shields.io/badge/status-Alpha-red?style=flat-square)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![Go Version](https://img.shields.io/badge/go-1.24+-00ADD8)](https://golang.org/)
 [![SQLite](https://img.shields.io/badge/database-SQLite-003B57)](https://sqlite.org/)
